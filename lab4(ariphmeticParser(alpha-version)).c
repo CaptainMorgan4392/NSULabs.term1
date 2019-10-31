@@ -9,7 +9,7 @@ typedef enum Token Token;
 typedef enum Exceptions Exceptions;
 typedef struct Pair Pair;
 
-/* Enumeration of all tokens, which can meet in expression */
+/* Enumeration of all tokens, which can met in expression */
 
 enum Token {
     ADD,
@@ -332,16 +332,6 @@ int main() {
         pop(bufferOperations);
     }
 
-    for (int i = 0; i < finalQuantityOfTokens; i++) {
-        printf("%s ", parsed[i]);
-    }
-    printf("\n");
-
-    for (int i = 0; i < quantityOfTokens; i++) {
-        free(splitted[i]);
-    }
-    free(splitted);
-
     //5. Calculating of RPN which we have after parsing
     stackWithTypename = createStackInt;
     Stack* calculatingStack = calloc(1, sizeof(Stack));
@@ -430,16 +420,22 @@ int main() {
         }
     }
 
+    for (int i = 0; i < finalQuantityOfTokens; i++) {
+        free(parsed[i]);
+    }
+    free(parsed);
+
+    free(arrayOfTokens);
+
+    for (int i = 0; i < finalQuantityOfTokens; i++) {
+        free(splitted[i]);
+    }
+    free(splitted);
+
     if (calculatingStack -> size != 1) {
         printf("%s", namesOfExceptions[0]);
     } else {
         printf("%d", peekInt(calculatingStack));
     }
-
-    /*for (size_t j = 0; j < finalQuantityOfTokens; j++) {
-        free(parsed[j]);
-    }
-    free(parsed);
-    free(arrayOfTokens);*/
     return 0;
 }
