@@ -9,7 +9,7 @@ typedef enum Token Token;
 typedef enum Exceptions Exceptions;
 typedef struct Pair Pair;
 
-/* Enumeration of all tokens, which can met in expression */
+/* Enumeration of all tokens, which can meet in expression */
 
 enum Token {
     ADD,
