@@ -137,14 +137,6 @@ char** splitToTokens(char* expression, size_t length, size_t *quantityOfTokens) 
 
     for (int i = 0; i < 1001; i++) {
         result[i] = (char*)calloc(20, sizeof(char));
-        if (!result[i]) {
-            printf("No memory?!");
-            free(expression);
-            for (int j = i; j >= 0; j--) {
-                free(result[j]);
-            }
-            return 0;
-        }
     }
 
     size_t  currentIndex = 0,
@@ -161,22 +153,22 @@ char** splitToTokens(char* expression, size_t length, size_t *quantityOfTokens) 
         char currentSymbol = expression[currentIndex];
         switch (currentSymbol) {
             case '+':
-                currentToken = "+";
+                strcpy(currentToken, "+");
                 break;
             case '-':
-                currentToken = "-";
+                strcpy(currentToken, "-");
                 break;
             case '*':
-                currentToken = "*";
+                strcpy(currentToken, "*");
                 break;
             case '/':
-                currentToken = "/";
+                strcpy(currentToken, "/");
                 break;
             case '(':
-                currentToken = "(";
+                strcpy(currentToken, "(");
                 break;
             case ')':
-                currentToken = ")";
+                strcpy(currentToken, ")");
                 break;
             default:
                 isDigit = true;
@@ -185,14 +177,16 @@ char** splitToTokens(char* expression, size_t length, size_t *quantityOfTokens) 
                     number[strlen(number)] = currentSymbol;
                     currentSymbol = expression[++currentIndex];
                 }
-                currentToken = number;
+                strcpy(currentToken, number);
+                free(number);
         }
         if (!isDigit) {
             currentIndex++;
         }
-        result[currentIndexInArrOfTokens++] = currentToken;
+        strcpy(result[currentIndexInArrOfTokens++], currentToken);
         (*quantityOfTokens)++;
         isDigit = false;
+        free(currentToken);
     }
 
     return result;
@@ -338,6 +332,11 @@ int main() {
         pop(bufferOperations);
     }
 
+    for (int i = 0; i < finalQuantityOfTokens; i++) {
+        printf("%s ", parsed[i]);
+    }
+    printf("\n");
+
     for (int i = 0; i < quantityOfTokens; i++) {
         free(splitted[i]);
     }
@@ -437,7 +436,7 @@ int main() {
         printf("%d", peekInt(calculatingStack));
     }
 
-   /* for (size_t j = 0; j < finalQuantityOfTokens; j++) {
+    /*for (size_t j = 0; j < finalQuantityOfTokens; j++) {
         free(parsed[j]);
     }
     free(parsed);
