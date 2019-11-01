@@ -5,19 +5,17 @@
 #include <ctype.h>
 
 typedef struct Stack Stack;
-typedef enum Token Token;
-typedef enum Exceptions Exceptions;
 typedef struct Pair Pair;
 
 /* Enumeration of all tokens, which can met in expression */
 
-enum Token {
+typedef enum {
     ADD,
     SUBTRACT,
     MULTIPLY,
     DIVIDE,
     NUMBER
-};
+} Token;
 
 /* Exceptions */
 
@@ -28,10 +26,10 @@ const char* namesOfExceptions[] = {
         "division by zero"
 };
 
-enum Exceptions {
+typedef enum {
     PARSING_ERROR = 1,
     UNDEFINED_RESULT
-};
+} Exceptions;
 
 /* Struct Pair */
 
@@ -83,8 +81,8 @@ char* peekLine(Stack* stack){
 
 void pop(Stack* stack) {
     if (isEmpty(stack)) {
-        printf("%s", namesOfExceptions[0]);
         flagOfException = true;
+        return;
     }
     stack -> size--;
 }
@@ -113,7 +111,61 @@ void getLineAndCheckExceptions(char *expression, const char* alphabet) {
             }
         }
 
-        expression[currentLength++] = currentSymbol;
+        expression[currentLength] = currentSymbol;
+
+        switch (currentSymbol) {
+            case '+':
+                if (currentLength == 0 || expression[currentLength - 1] == '(') {
+                    printf("%s", namesOfExceptions[0]);
+                    free(expression);
+                    exit(PARSING_ERROR);
+                }
+                currentLength++;
+                break;
+            case '-':
+                if (currentLength == 0 || expression[currentLength - 1] == '(') {
+                    printf("%s", namesOfExceptions[0]);
+                    free(expression);
+                    exit(PARSING_ERROR);
+                }
+                currentLength++;
+                break;
+            case '*':
+                if (currentLength == 0 || expression[currentLength - 1] == '(') {
+                    printf("%s", namesOfExceptions[0]);
+                    free(expression);
+                    exit(PARSING_ERROR);
+                }
+                currentLength++;
+                break;
+            case '/':
+                if (currentLength == 0 || expression[currentLength - 1] == '(') {
+                    printf("%s", namesOfExceptions[0]);
+                    free(expression);
+                    exit(PARSING_ERROR);
+                }
+                currentLength++;
+                break;
+            case '(':
+                if ((currentLength > 0 && expression[currentLength - 1] == ')') || isdigit(expression[currentLength - 1])) {
+                    printf("%s", namesOfExceptions[0]);
+                    free(expression);
+                    exit(PARSING_ERROR);
+                }
+                currentLength++;
+                break;
+            case ')':
+                if (currentLength == 0 || expression[currentLength - 1] == '(') {
+                    printf("%s", namesOfExceptions[0]);
+                    free(expression);
+                    exit(PARSING_ERROR);
+                }
+                currentLength++;
+                break;
+            default:
+                currentLength++;
+                continue;
+        }
     }
 
     if (currentLength == 0) {
@@ -147,6 +199,10 @@ char** splitToTokens(char* expression, size_t length, size_t *quantityOfTokens) 
         if (!currentToken) {
             printf("No memory?!");
             free(expression);
+            for (int i = 0; i < 1001; i++) {
+                free(result[i]);
+            }
+            free(result);
             return 0;
         }
 
@@ -195,7 +251,7 @@ char** splitToTokens(char* expression, size_t length, size_t *quantityOfTokens) 
 size_t calculateFinalQuantity(char** splitted, const size_t quantityOfTokens) {
     size_t answer = 0;
 
-    for (int i = 0; i < quantityOfTokens; i++) {
+    for (size_t i = 0; i < quantityOfTokens; i++) {
         if ((strcmp("(", splitted[i]) != 0) && (strcmp(")", splitted[i]) != 0)) {
             answer++;
         } else {
@@ -239,20 +295,22 @@ Pair* getOperands(Stack* stack) {
 
     newPair -> second = peekInt(stack);
     pop(stack);
-    if (flagOfException) return NULL;
+    if (flagOfException) {
+        free(newPair);
+        return NULL;
+    }
 
     newPair -> first = peekInt(stack);
     pop(stack);
-    if (flagOfException) return NULL;
+    if (flagOfException) {
+        free(newPair);
+        return NULL;
+    }
 
     return newPair;
 }
 
 int main() {
-    /* Alphabet of expression */
-
-    const char* alphabet = "0123456789+-*/()";
-
     //1. Allocating and initialising memory of expression
     //2. Checking exceptions
 
@@ -261,6 +319,7 @@ int main() {
         printf("No memory?!");
         return 0;
     } else {
+        const char* alphabet = "0123456789+-*/()";
         getLineAndCheckExceptions(expression, alphabet);
     }
 
@@ -285,7 +344,7 @@ int main() {
 
     size_t currentIndex = 0;
 
-    for (int i = 0; i < quantityOfTokens; i++) {
+    for (size_t i = 0; i < quantityOfTokens; i++) {
         char* current = splitted[i];
 
         if (strcmp("(", current) == 0) {
@@ -420,17 +479,12 @@ int main() {
         }
     }
 
-    for (int i = 0; i < finalQuantityOfTokens; i++) {
+    for (size_t i = 0; i < finalQuantityOfTokens; i++) {
         free(parsed[i]);
     }
     free(parsed);
 
     free(arrayOfTokens);
-
-    for (int i = 0; i < finalQuantityOfTokens; i++) {
-        free(splitted[i]);
-    }
-    free(splitted);
 
     if (calculatingStack -> size != 1) {
         printf("%s", namesOfExceptions[0]);
