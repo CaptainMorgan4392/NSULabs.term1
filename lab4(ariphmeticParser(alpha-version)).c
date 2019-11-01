@@ -147,10 +147,12 @@ void getLineAndCheckExceptions(char *expression, const char* alphabet) {
                 currentLength++;
                 break;
             case '(':
-                if ((currentLength > 0 && expression[currentLength - 1] == ')') || isdigit(expression[currentLength - 1])) {
-                    printf("%s", namesOfExceptions[0]);
-                    free(expression);
-                    exit(PARSING_ERROR);
+                if (currentLength > 0) {
+                    if (expression[currentLength - 1] == ')' || isdigit(expression[currentLength - 1])) {
+                        printf("%s", namesOfExceptions[0]);
+                        free(expression);
+                        exit(PARSING_ERROR);
+                    }
                 }
                 currentLength++;
                 break;
@@ -391,6 +393,11 @@ int main() {
         pop(bufferOperations);
     }
 
+    for (size_t i = 0; i < bufferOperations -> size; i++) {
+        free(bufferOperations -> lines[i]);
+    }
+    free(bufferOperations);
+
     //5. Calculating of RPN which we have after parsing
     stackWithTypename = createStackInt;
     Stack* calculatingStack = calloc(1, sizeof(Stack));
@@ -491,5 +498,8 @@ int main() {
     } else {
         printf("%d", peekInt(calculatingStack));
     }
+
+    free(calculatingStack -> integers);
+    free(calculatingStack);
     return 0;
 }
