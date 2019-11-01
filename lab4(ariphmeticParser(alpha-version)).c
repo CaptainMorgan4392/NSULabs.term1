@@ -46,7 +46,7 @@ struct Stack {
     size_t size;
 };
 
-void createStackChar(Stack* stack) {
+void createStackLine(Stack *stack) {
     stack -> lines = (char**)calloc(1000, sizeof(char*));
     for (int i = 0; i < 1000; i++) {
         stack -> lines[i] = (char*)calloc(20, sizeof(char));
@@ -340,7 +340,7 @@ int main() {
 
     char** parsed = (char**)calloc(finalQuantityOfTokens, sizeof(char*));
 
-    stackWithTypename = createStackChar;
+    stackWithTypename = createStackLine;
     Stack* bufferOperations = calloc(1, sizeof(Stack));
     stackWithTypename(bufferOperations);
 
@@ -355,6 +355,9 @@ int main() {
             while (!isEmpty(bufferOperations) && strcmp(peekLine(bufferOperations), "(") != 0) {
                 parsed[currentIndex++] = peekLine(bufferOperations);
                 pop(bufferOperations);
+                if (flagOfException) {
+
+                }
             }
             pop(bufferOperations);
         } else if (strcmp("+", current) == 0) {
@@ -392,11 +395,6 @@ int main() {
         parsed[currentIndex++] = peekLine(bufferOperations);
         pop(bufferOperations);
     }
-
-    for (size_t i = 0; i < bufferOperations -> size; i++) {
-        free(bufferOperations -> lines[i]);
-    }
-    free(bufferOperations);
 
     //5. Calculating of RPN which we have after parsing
     stackWithTypename = createStackInt;
@@ -479,6 +477,9 @@ int main() {
                     }
                     free(parsed);
 
+                    free(calculatingStack -> integers);
+                    free(calculatingStack);
+
                     exit(UNDEFINED_RESULT);
                 }
                 pushInt(calculatingStack, operands -> first / operands -> second);
@@ -498,8 +499,5 @@ int main() {
     } else {
         printf("%d", peekInt(calculatingStack));
     }
-
-    free(calculatingStack -> integers);
-    free(calculatingStack);
     return 0;
 }
