@@ -53,6 +53,12 @@ unsigned int calculateHash(const unsigned char* pattern) {
     return answer;
 }
 
+unsigned int getHashFromHash(Context* ctx, const unsigned char* currentBlock, unsigned char prev) {
+    unsigned int currentHash = ctx -> b -> hash;
+
+    return (currentHash - (prev % 3)) / 3 + (currentBlock[ctx -> t -> size - 1] % 3) * arrayOfDegrees[ctx -> t -> size - 1];
+}
+
 void initialiseTemplate(Context* ctx) {
     if (scanf("%16[^\n]s", ctx -> t -> pattern) == 0) {
         printf("bad input");
@@ -105,19 +111,26 @@ void compareLines(Template* t, const unsigned char* toCompare, size_t currentInd
 
 void startAlgorithm(Context* ctx) {
     static size_t currentIndex = 1;
-    size_t currentPositionInBuffer = 0;
     unsigned char* blockWithEqualLength = (unsigned char*)calloc(MAX_DEGREE + 1, sizeof(unsigned char));
+    size_t currentPositionInBuffer = 0;
 
     for (size_t i = 0; i < ctx -> b -> size - ctx -> t -> size + 1; i++) {
+        unsigned char prevSymbol = 0;
         if (i == 0) {
             memcpy(blockWithEqualLength, ctx -> b -> pattern, ctx -> t -> size);
             currentPositionInBuffer = strlen((char*)blockWithEqualLength);
         } else {
+            prevSymbol = blockWithEqualLength[0];
             memcpy(blockWithEqualLength, blockWithEqualLength + 1, ctx -> t -> size - 1);
             blockWithEqualLength[ctx -> t -> size - 1] = ctx -> b -> pattern[currentPositionInBuffer - 1];
         }
 
-        ctx -> b -> hash = calculateHash(blockWithEqualLength);
+        if (currentPositionInBuffer == strlen((char*)blockWithEqualLength)) {
+            ctx -> b -> hash = calculateHash(blockWithEqualLength);
+        } else {
+            ctx -> b -> hash = getHashFromHash(ctx, blockWithEqualLength, prevSymbol);
+        }
+
         if (areHashesEqual(ctx)) {
             compareLines(ctx -> t, blockWithEqualLength, currentIndex);
         }
@@ -126,6 +139,8 @@ void startAlgorithm(Context* ctx) {
     }
 
     if (!feof(stdin)) {
+        initialiseBuffer(ctx);
+        currentIndex += ctx -> t -> size - 1;
         startAlgorithm(ctx);
     }
 }
