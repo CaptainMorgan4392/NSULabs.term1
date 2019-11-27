@@ -1,5 +1,5 @@
 #define MAX_DEGREE 16
-#define SIZE_OF_RING_BUFFER 4096
+#define SIZE_OF_RING_BUFFER 8192
 
 #include <stdio.h>
 #include <mm_malloc.h>
@@ -68,7 +68,7 @@ void initialiseTemplate(Template* t) {
 
 void initialiseBuffer(RingBuffer* b) {
     b -> allocated = false;
-    if (scanf("%4096[^\xff]s", b -> pattern) == 0) {
+    if (scanf("%8192[^\xff]s", b -> pattern) == 0) {
         printf("bad input");
         return;
     }
